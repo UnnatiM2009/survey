@@ -34,6 +34,12 @@
   .exp button:active{transform:scale(.97);}
   .exp button.selected{outline:3px solid #4da3ff;box-shadow:0 0 14px rgba(255,255,255,.5);}
   .exp-msg{margin-top:18px;font-size:16px;font-weight:600;min-height:24px;}
+  .reasons{display:none;flex-wrap:wrap;gap:12px;margin-top:18px;}
+  .reasons.show{display:flex;}
+  .reasons button{flex:1 1 44%;min-width:220px;padding:16px 10px;border:none;border-radius:6px;
+    background:#6d6d6d;color:#fff;font-size:15px;font-weight:500;cursor:pointer;transition:background .15s;}
+  .reasons button.selected{background:#1976d2;outline:2px solid #9ec9ff;}
+  @media(max-width:600px){.reasons button{flex:1 1 100%;min-width:0;}}
   textarea{width:100%;min-height:110px;margin-top:20px;padding:14px;border-radius:4px;
     border:1px solid #fff;background:#000;color:#fff;font-size:15px;resize:vertical;}
   textarea::placeholder{color:#8a8a8a;}
@@ -84,6 +90,7 @@
       <button data-v="Unacceptable" style="background:var(--unacc);color:#fff">Unacceptable</button>
     </div>
     <div class="exp-msg" id="expMsg"></div>
+    <div class="reasons" id="reasons"></div>
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="next2" disabled>Next</button></div>
   </section>
 
@@ -130,13 +137,15 @@ const T = {
         Fair:"Thank you for your feedback. We will work to make your next visit better.",
         Poor:"We are sorry to hear that. Our Service Manager will contact you shortly.",
         Unacceptable:"We sincerely apologize. Our Service Manager will call you immediately to resolve this."},
+  sorry:"Sorry, to hear that. Tell us what went wrong (Select all that apply).",
+  reasons:{ "Appointment Experience":"Appointment Experience","Cleanliness of vehicle":"Cleanliness of vehicle","Experience with Service advisor":"Experience with Service advisor","Other":"Other","Quality of work done":"Quality of work done","Time taken for service":"Time taken for service","Transparency & Fairness of charges":"Transparency & Fairness of charges","Updates on vehicle status":"Updates on vehicle status","Vehicle handover waiting time":"Vehicle handover waiting time","Workshop amenities":"Workshop amenities" },
   q3:"Would you like to share any thing more about your experience ?",
   placeholder:"Answer Here", next:"Next", back:"Back", submit:"Submit", submitting:"Submitting...",
   thanks:"Thank You", thanksSub:"For Experiencing Mahindra",
   thanksNote:"Your feedback has been recorded. Our team will reach out if needed."
  },
  hi:{
-  q1:(m,v)=>"आप अपनी "+(m?"महिंद्र "+m:"महिंद्र गाड़ी")+(v?" ("+v+")":"")+" को दूसरों को रिकमेंड करने की कितनी संभावना रखते है?",
+  q1:(m,v)=>"आप अपनी "+(m?"Mahindra "+m:"Mahindra गाड़ी")+(v?" ("+v+")":"")+" को दूसरों को रिकमेंड करने की कितनी संभावना है?",
   notLikely:"बिल्कुल संभावना नहीं", extLikely:"पूरी संभावना",
   q2:d=>d+" में आपका सर्विस अनुभव कैसा रहा?",
   exp:{Excellent:"उत्कृष्ट",Good:"अच्छा",Fair:"ठीक-ठाक",Poor:"खराब",Unacceptable:"अस्वीकार्य"},
@@ -145,13 +154,15 @@ const T = {
         Fair:"आपकी प्रतिक्रिया के लिए धन्यवाद। हम आपकी अगली विज़िट को बेहतर बनाने का प्रयास करेंगे।",
         Poor:"हमें खेद है। हमारे सर्विस मैनेजर जल्द ही आपसे संपर्क करेंगे।",
         Unacceptable:"हम क्षमा चाहते हैं। हमारे सर्विस मैनेजर तुरंत आपको कॉल करके समाधान करेंगे।"},
+  sorry:"यह सुनकर खेद हुआ। कृपया बताएं क्या गलत हुआ (जो भी लागू हों चुनें)।",
+  reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाड़ी की सफाई","Experience with Service advisor":"सर्विस एडवाइज़र के साथ अनुभव","Other":"अन्य","Quality of work done":"काम की गुणवत्ता","Time taken for service":"सर्विस में लगा समय","Transparency & Fairness of charges":"शुल्क में पारदर्शिता और निष्पक्षता","Updates on vehicle status":"गाड़ी की स्थिति की जानकारी","Vehicle handover waiting time":"गाड़ी हैंडओवर में प्रतीक्षा समय","Workshop amenities":"वर्कशॉप सुविधाएँ" },
   q3:"क्या आप अपने अनुभव के बारे में कुछ और बताना चाहेंगे?",
   placeholder:"यहाँ लिखें", next:"आगे", back:"पीछे", submit:"सबमिट करें", submitting:"भेजा जा रहा है...",
-  thanks:"धन्यवाद", thanksSub:"महिंद्र अनुभव के लिए",
+  thanks:"धन्यवाद", thanksSub:"Mahindra अनुभव के लिए",
   thanksNote:"आपकी प्रतिक्रिया दर्ज कर ली गई है। आवश्यकता होने पर हमारी टीम आपसे संपर्क करेगी।"
  },
  mr:{
-  q1:(m,v)=>"तुम्ही तुमची "+(m?"महिंद्र "+m:"महिंद्र गाडी")+(v?" ("+v+")":"")+" गाडी इतरांना किती प्रमाणात शिफारस कराल?",
+  q1:(m,v)=>"तुम्ही तुमची "+(m?"Mahindra "+m:"Mahindra गाडी")+(v?" ("+v+")":"")+" इतरांना रिकमेंड करण्याची किती शक्यता आहे?",
   notLikely:"अजिबात शक्यता नाही", extLikely:"पूर्ण शक्यता",
   q2:d=>d+" येथे तुमचा सर्व्हिस अनुभव कसा होता?",
   exp:{Excellent:"उत्कृष्ट",Good:"चांगला",Fair:"ठीक",Poor:"वाईट",Unacceptable:"अस्वीकार्य"},
@@ -160,9 +171,11 @@ const T = {
         Fair:"तुमच्या अभिप्रायाबद्दल धन्यवाद. पुढील भेट अधिक चांगली करण्याचा आम्ही प्रयत्न करू.",
         Poor:"आम्हाला खेद आहे. आमचे सर्व्हिस मॅनेजर लवकरच तुमच्याशी संपर्क साधतील.",
         Unacceptable:"आम्ही क्षमा मागतो. आमचे सर्व्हिस मॅनेजर त्वरित कॉल करून समस्या सोडवतील."},
+  sorry:"हे ऐकून वाईट वाटले. कृपया काय चुकले ते सांगा (लागू असलेले सर्व निवडा).",
+  reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाडीची स्वच्छता","Experience with Service advisor":"सर्व्हिस अ\u200dॅडव्हायझरसोबतचा अनुभव","Other":"इतर","Quality of work done":"कामाची गुणवत्ता","Time taken for service":"सर्व्हिससाठी लागलेला वेळ","Transparency & Fairness of charges":"शुल्कातील पारदर्शकता व निष्पक्षता","Updates on vehicle status":"गाडीच्या स्थितीची माहिती","Vehicle handover waiting time":"गाडी हँडओव्हर प्रतीक्षा वेळ","Workshop amenities":"वर्कशॉप सुविधा" },
   q3:"तुम्हाला तुमच्या अनुभवाबद्दल आणखी काही सांगायचे आहे का?",
   placeholder:"येथे लिहा", next:"पुढे", back:"मागे", submit:"सबमिट करा", submitting:"पाठवत आहे...",
-  thanks:"धन्यवाद", thanksSub:"महिंद्र अनुभवासाठी",
+  thanks:"धन्यवाद", thanksSub:"Mahindra अनुभवासाठी",
   thanksNote:"तुमचा अभिप्राय नोंदवला गेला आहे. गरज पडल्यास आमची टीम तुमच्याशी संपर्क साधेल."
  }
 };
@@ -200,12 +213,36 @@ for (let i = 0; i <= 10; i++) {
 }
 
 /* Experience */
+const REASON_KEYS = ["Appointment Experience","Cleanliness of vehicle","Experience with Service advisor","Other","Quality of work done","Time taken for service","Transparency & Fairness of charges","Updates on vehicle status","Vehicle handover waiting time","Workshop amenities"];
+let selectedReasons = [];
+const reasonsWrap = document.getElementById("reasons");
+REASON_KEYS.forEach(k=>{
+  const rb = document.createElement("button");
+  rb.type = "button";
+  rb.dataset.k = k;
+  rb.textContent = L.reasons[k];
+  rb.onclick = ()=>{
+    rb.classList.toggle("selected");
+    selectedReasons = Array.from(reasonsWrap.querySelectorAll("button.selected")).map(x=>x.dataset.k);
+  };
+  reasonsWrap.appendChild(rb);
+});
+
 document.querySelectorAll(".exp button").forEach(b=>{
   b.onclick=()=>{
     expChoice=b.dataset.v;
     document.querySelectorAll(".exp button").forEach(x=>x.classList.remove("selected"));
     b.classList.add("selected");
-    document.getElementById("expMsg").textContent=L.msgs[expChoice];
+    const bad = ["Fair","Poor","Unacceptable"].includes(expChoice);
+    if(bad){
+      document.getElementById("expMsg").textContent = L.sorry;
+      reasonsWrap.classList.add("show");
+    }else{
+      document.getElementById("expMsg").textContent = L.msgs[expChoice];
+      reasonsWrap.classList.remove("show");
+      reasonsWrap.querySelectorAll("button").forEach(x=>x.classList.remove("selected"));
+      selectedReasons = [];
+    }
     document.getElementById("next2").disabled=false;
   };
 });
@@ -237,6 +274,7 @@ document.getElementById("submitBtn").onclick = async () => {
         "4. Vehicle Number": veh || "-",
         "5. Recommend Score (0-10)": npsScore,
         "6. Service Experience": expChoice,
+        "6a. What Went Wrong": selectedReasons.length ? selectedReasons.join(", ") : "-",
         "7. Customer Comments": comment || "(no comments)",
         "7a. Survey Language": lang==="hi"?"Hindi":lang==="mr"?"Marathi":"English",
         "8. ACTION REQUIRED": flag ? "YES - Service Manager must call customer within 4 hours" : "No - customer satisfied"
