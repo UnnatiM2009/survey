@@ -125,6 +125,7 @@ const params = new URLSearchParams(location.search);
 const model = params.get("model") || "";
 const veh   = params.get("veh")   || "";
 const lang  = ["en","hi","mr"].includes(params.get("lang")) ? params.get("lang") : "en";
+const mob   = params.get("mob") || "";
 
 const T = {
  en:{
@@ -272,6 +273,7 @@ document.getElementById("submitBtn").onclick = async () => {
         "2. Dealership": "Unnati Motors",
         "3. Vehicle Model": model || "-",
         "4. Vehicle Number": veh || "-",
+        "4a. Customer Mobile Number": mob || "-",
         "5. Recommend Score (0-10)": npsScore,
         "6. Service Experience": expChoice,
         "6a. What Went Wrong": selectedReasons.length ? selectedReasons.join(", ") : "-",
