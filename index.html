@@ -65,12 +65,10 @@
 </head>
 <body>
 <div class="wrap">
-
   <header>
     <img src="logo.png" alt="Mahindra Sport Utility Vehicles" class="logo-img">
     <div class="logo-right">mah&iacute;ndra</div>
   </header>
-
   <!-- SCREEN 1 : NPS -->
   <section class="screen active" id="s1">
     <div class="question" id="q1">How likely are you to recommend your Mahindra vehicle to others?</div>
@@ -78,7 +76,6 @@
     <div class="nps" id="nps"></div>
     <div class="nav"><span class="spacer"></span><button class="btn" id="next1" disabled>Next</button></div>
   </section>
-
   <!-- SCREEN 2 : Experience -->
   <section class="screen" id="s2">
     <div class="question" id="q2"></div>
@@ -93,7 +90,6 @@
     <div class="reasons" id="reasons"></div>
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="next2" disabled>Next</button></div>
   </section>
-
   <!-- SCREEN 3 : Comments -->
   <section class="screen" id="s3">
     <div class="question" id="q3">Would you like to share any thing more about your experience ?</div>
@@ -101,7 +97,6 @@
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="submitBtn">Submit</button></div>
     <div class="sending" id="sending"></div>
   </section>
-
   <!-- SCREEN 4 : Thank you -->
   <section class="screen" id="s4">
     <div class="thanks">
@@ -110,20 +105,22 @@
       <p style="margin-top:14px" id="thanksNote">Your feedback has been recorded. Our team will reach out if needed.</p>
     </div>
   </section>
-
 </div>
-
 <script>
 /* ================= CONFIG — EDIT THIS ================= */
 const CONFIG = {
-  feedbackEmail: "rnaidu@mlplgroup.com", "servicegm.pune@mlplgroup.com", "sm.ho@mlplgroup.com",  // where every feedback is emailed
+  // PRIMARY recipient — FormSubmit sends the email to this address
+  feedbackEmail: "rnaidu@mlplgroup.com",
+  // EXTRA recipients — added as CC (comma-separated, no spaces).
+  // IMPORTANT: FormSubmit will send a one-time verification email to each
+  // address the first time. That person must click "Activate" once,
+  // otherwise they will NOT receive the feedback emails.
+  ccEmails: "servicegm.pune@mlplgroup.com,sm.ho@mlplgroup.com",
   dealerName: "UNNATI MOTORS, A DIVISION OF MICROPARK LOGISTICS PRIVATE LIMITED",
-
   /* ---------- WhatsApp ALERT settings ---------- */
   // Alert triggers when: NPS score is BELOW this number (i.e. 0-6),
   // OR experience is Fair / Poor / Unacceptable.
   alertBelowScore: 7,
-
   // Managers who receive the WhatsApp alert. ADD AS MANY AS YOU WANT.
   // Each number must be registered ONCE with CallMeBot (free) to get its apikey:
   //   1. On that manager's phone, save CallMeBot number +34 644 51 95 23 in contacts
@@ -138,7 +135,6 @@ const CONFIG = {
   ]
 };
 /* ====================================================== */
-
 const params = new URLSearchParams(location.search);
 const model   = params.get("model")   || "";
 const veh     = params.get("veh")     || "";
@@ -147,7 +143,6 @@ const mob     = params.get("mob")     || "";
 const custName= params.get("name")    || "";   // from Excel: Customer Name
 const chassis = params.get("chassis") || "";   // from Excel: Chassis Number
 const SURVEY_TYPE = "After_Sale_Survey";       // CCCF / Invitation No. are Mahindra-generated — not used here
-
 const T = {
  en:{
   q1:(m,v)=>"How likely are you to recommend your "+(m?"Mahindra "+m:"Mahindra vehicle")+(v?" ("+v+")":"")+" to others?",
@@ -202,7 +197,6 @@ const T = {
  }
 };
 const L = T[lang];
-
 document.getElementById("q1").textContent = L.q1(model, veh);
 document.getElementById("q2").textContent = L.q2(CONFIG.dealerName);
 document.getElementById("lblNot").textContent = L.notLikely;
@@ -217,7 +211,6 @@ document.querySelectorAll(".exp button").forEach(b=>{ b.textContent = L.exp[b.da
 document.getElementById("thanksH").textContent = L.thanks;
 document.getElementById("thanksSub").textContent = L.thanksSub;
 document.getElementById("thanksNote").textContent = L.thanksNote;
-
 /* NPS 0-10 */
 const npsWrap = document.getElementById("nps");
 let npsScore = null, expChoice = null;
@@ -233,7 +226,6 @@ for (let i = 0; i <= 10; i++) {
   };
   npsWrap.appendChild(b);
 }
-
 /* Experience */
 const REASON_KEYS = ["Appointment Experience","Cleanliness of vehicle","Experience with Service advisor","Other","Quality of work done","Time taken for service","Transparency & Fairness of charges","Updates on vehicle status","Vehicle handover waiting time","Workshop amenities"];
 let selectedReasons = [];
@@ -249,7 +241,6 @@ REASON_KEYS.forEach(k=>{
   };
   reasonsWrap.appendChild(rb);
 });
-
 document.querySelectorAll(".exp button").forEach(b=>{
   b.onclick=()=>{
     expChoice=b.dataset.v;
@@ -268,13 +259,11 @@ document.querySelectorAll(".exp button").forEach(b=>{
     document.getElementById("next2").disabled=false;
   };
 });
-
 /* Navigation */
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0);}
 document.getElementById("next1").onclick=()=>show("s2");
 document.getElementById("next2").onclick=()=>show("s3");
 document.querySelectorAll(".back").forEach((b,i)=>{b.onclick=()=>show(i===0?"s1":"s2");});
-
 /* ============================================================
    WHATSAPP ALERT LOGIC
    Triggered when: NPS score below CONFIG.alertBelowScore (0-6)
@@ -282,14 +271,12 @@ document.querySelectorAll(".back").forEach((b,i)=>{b.onclick=()=>show(i===0?"s1"
    Sends an automatic WhatsApp message to every number in
    CONFIG.alertNumbers via the free CallMeBot API.
    ============================================================ */
-
 // Decide whether this feedback needs an alert
 function isNegativeFeedback(){
   const badScore = (npsScore !== null && npsScore < CONFIG.alertBelowScore); // 0-6
   const badExp   = ["Fair","Poor","Unacceptable"].includes(expChoice);
   return badScore || badExp;
 }
-
 // Build the alert text sent to managers (always in English for staff)
 function buildAlertMessage(comment, now){
   return [
@@ -313,7 +300,6 @@ function buildAlertMessage(comment, now){
     (mob ? "\n📞 Call now: " + mob : "")
   ].join("\n");
 }
-
 // Send the alert to ALL configured numbers ONE BY ONE (sequential,
 // with a gap between each — proper manner, avoids API rate limits).
 // Never blocks or fails the customer's submission.
@@ -336,7 +322,6 @@ async function sendWhatsAppAlerts(comment, now){
     if(i < targets.length - 1) await wait(2000);    // 2s gap between numbers
   }
 }
-
 /* Submit -> email via FormSubmit + WhatsApp alert if negative */
 document.getElementById("submitBtn").onclick = async () => {
   const btn = document.getElementById("submitBtn");
@@ -345,14 +330,14 @@ document.getElementById("submitBtn").onclick = async () => {
   const now = new Date().toLocaleString("en-IN");
   btn.disabled = true;
   document.getElementById("sending").textContent = L.submitting;
-
-  // 1) Email (every feedback)
+  // 1) Email (every feedback) — sent TO feedbackEmail, CC to ccEmails
   const emailJob = fetch("https://formsubmit.co/ajax/" + CONFIG.feedbackEmail, {
     method:"POST",
     headers:{ "Content-Type":"application/json", "Accept":"application/json" },
     body: JSON.stringify({
       _subject: (flag ? "⚠️ ATTENTION NEEDED | " : "✅ ") + "Customer Feedback | " + (model || "Vehicle") + " | " + (veh || "-"),
       _template: "table",
+      _cc: CONFIG.ccEmails,
       "01. Survey Type": SURVEY_TYPE,
       "02. Status": "Completed",
       "03. Date & Time": now,
@@ -371,10 +356,8 @@ document.getElementById("submitBtn").onclick = async () => {
       "16. WhatsApp Alert Sent To": flag ? CONFIG.alertNumbers.map(n=>n.name+" ("+n.phone+")").join(", ") : "-"
     })
   }).catch(()=>{});
-
   // 2) WhatsApp alert to managers (only if negative feedback)
   const waJob = sendWhatsAppAlerts(comment, now);
-
   try{ await Promise.allSettled([emailJob, waJob]); }
   catch(e){ /* still thank the customer; do not block them */ }
   show("s4");
