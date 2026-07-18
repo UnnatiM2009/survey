@@ -317,7 +317,7 @@ document.getElementById("submitBtn").onclick = async () => {
         "7. Customer Comments": comment || "(no comments)",
         "7a. Survey Language": lang==="hi"?"Hindi":lang==="mr"?"Marathi":"English",
         "8. ACTION REQUIRED": flag ? "YES - Service Manager must call customer within 4 hours" : "No - customer satisfied",
-        "9. Note": "This is an automated Customer Feedback report from UNNATI MOTORS (A Division of Micropark Logistics Pvt. Ltd.), Authorised Mahindra Dealer. For any queries, contact the Service Team."
+        "9. Note": "This feedback was submitted by the customer of vehicle number " + (veh || "-") + " through the UNNATI MOTORS Customer Feedback Survey. UNNATI MOTORS - A Division of Micropark Logistics Pvt. Ltd., Authorised Mahindra Dealer."
     };
     if(route.cc) payload._cc = route.cc;
     await fetch("https://formsubmit.co/ajax/" + route.to, {
