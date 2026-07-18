@@ -65,10 +65,12 @@
 </head>
 <body>
 <div class="wrap">
+
   <header>
     <img src="logo.png" alt="Mahindra Sport Utility Vehicles" class="logo-img">
     <div class="logo-right">mah&iacute;ndra</div>
   </header>
+
   <!-- SCREEN 1 : NPS -->
   <section class="screen active" id="s1">
     <div class="question" id="q1">How likely are you to recommend your Mahindra vehicle to others?</div>
@@ -76,6 +78,7 @@
     <div class="nps" id="nps"></div>
     <div class="nav"><span class="spacer"></span><button class="btn" id="next1" disabled>Next</button></div>
   </section>
+
   <!-- SCREEN 2 : Experience -->
   <section class="screen" id="s2">
     <div class="question" id="q2"></div>
@@ -90,6 +93,7 @@
     <div class="reasons" id="reasons"></div>
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="next2" disabled>Next</button></div>
   </section>
+
   <!-- SCREEN 3 : Comments -->
   <section class="screen" id="s3">
     <div class="question" id="q3">Would you like to share any thing more about your experience ?</div>
@@ -97,6 +101,7 @@
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="submitBtn">Submit</button></div>
     <div class="sending" id="sending"></div>
   </section>
+
   <!-- SCREEN 4 : Thank you -->
   <section class="screen" id="s4">
     <div class="thanks">
@@ -105,44 +110,35 @@
       <p style="margin-top:14px" id="thanksNote">Your feedback has been recorded. Our team will reach out if needed.</p>
     </div>
   </section>
+
 </div>
+
 <script>
 /* ================= CONFIG — EDIT THIS ================= */
 const CONFIG = {
-  // PRIMARY recipient — FormSubmit sends the email to this address
-  feedbackEmail: "rnaidu@mlplgroup.com",
-  // EXTRA recipients — added as CC (comma-separated, no spaces).
-  // IMPORTANT: FormSubmit will send a one-time verification email to each
-  // address the first time. That person must click "Activate" once,
-  // otherwise they will NOT receive the feedback emails.
-  ccEmails: "servicegm.pune@mlplgroup.com,sm.ho@mlplgroup.com",
-  dealerName: "UNNATI MOTORS, A DIVISION OF MICROPARK LOGISTICS PRIVATE LIMITED",
-  /* ---------- WhatsApp ALERT settings ---------- */
-  // Alert triggers when: NPS score is BELOW this number (i.e. 0-6),
-  // OR experience is Fair / Poor / Unacceptable.
-  alertBelowScore: 7,
-  // Managers who receive the WhatsApp alert. ADD AS MANY AS YOU WANT.
-  // Each number must be registered ONCE with CallMeBot (free) to get its apikey:
-  //   1. On that manager's phone, save CallMeBot number +34 644 51 95 23 in contacts
-  //   2. Send this WhatsApp message to it:  I allow callmebot to send me messages
-  //   3. CallMeBot replies with an apikey (e.g. 123456) — paste it below
-  //   (Current bot number & steps: https://www.callmebot.com/blog/free-api-whatsapp-messages/)
-  alertNumbers: [
-    { name: "Service Manager", phone: "919209008732", apikey: "PASTE_APIKEY_HERE" }
-    // To add more managers, copy the line above, e.g.:
-    // ,{ name: "GM",           phone: "919876543210", apikey: "PASTE_APIKEY_HERE" }
-    // ,{ name: "Dealer Owner", phone: "919123456789", apikey: "PASTE_APIKEY_HERE" }
-  ]
+  feedbackEmail: "rnaidu@mlplgroup.com",   // fallback if no division in the link (old links keep working)
+  dealerName: "UNNATI MOTORS, A DIVISION OF MICROPARK LOGISTICS PRIVATE LIMITED"
+};
+// Division-wise email routing
+const DIVISION_EMAILS = {
+  pune: {
+    to: "ankush.ludhekar@mlplgroup.com",
+    cc: "rnaidu@mlplgroup.com,servicegm.pune@mlplgroup.com,servicemanager.pune@mlplgroup.com"
+  },
+  nagpur: {
+    to: "ankush.ludhekar@mlplgroup.com",
+    cc: "rnaidu@mlplgroup.com,sm.ho@mlplgroup.com,crm.service@mlplgroup.com,cxmservice.ngp@mlplgroup.com"
+  }
 };
 /* ====================================================== */
+
 const params = new URLSearchParams(location.search);
-const model   = params.get("model")   || "";
-const veh     = params.get("veh")     || "";
-const lang    = ["en","hi","mr"].includes(params.get("lang")) ? params.get("lang") : "en";
-const mob     = params.get("mob")     || "";
-const custName= params.get("name")    || "";   // from Excel: Customer Name
-const chassis = params.get("chassis") || "";   // from Excel: Chassis Number
-const SURVEY_TYPE = "After_Sale_Survey";       // CCCF / Invitation No. are Mahindra-generated — not used here
+const model = params.get("model") || "";
+const veh   = params.get("veh")   || "";
+const lang  = ["en","hi","mr"].includes(params.get("lang")) ? params.get("lang") : "en";
+const mob   = params.get("mob") || "";
+const divn  = ["pune","nagpur"].includes(params.get("div")) ? params.get("div") : "";
+
 const T = {
  en:{
   q1:(m,v)=>"How likely are you to recommend your "+(m?"Mahindra "+m:"Mahindra vehicle")+(v?" ("+v+")":"")+" to others?",
@@ -189,7 +185,7 @@ const T = {
         Poor:"आम्हाला खेद आहे. आमचे सर्व्हिस मॅनेजर लवकरच तुमच्याशी संपर्क साधतील.",
         Unacceptable:"आम्ही क्षमा मागतो. आमचे सर्व्हिस मॅनेजर त्वरित कॉल करून समस्या सोडवतील."},
   sorry:"हे ऐकून वाईट वाटले. कृपया काय चुकले ते सांगा (लागू असलेले सर्व निवडा).",
-  reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाडीची स्वच्छता","Experience with Service advisor":"सर्व्हिस अ‍ॅडव्हायझरसोबतचा अनुभव","Other":"इतर","Quality of work done":"कामाची गुणवत्ता","Time taken for service":"सर्व्हिससाठी लागलेला वेळ","Transparency & Fairness of charges":"शुल्कातील पारदर्शकता व निष्पक्षता","Updates on vehicle status":"गाडीच्या स्थितीची माहिती","Vehicle handover waiting time":"गाडी हँडओव्हर प्रतीक्षा वेळ","Workshop amenities":"वर्कशॉप सुविधा" },
+  reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाडीची स्वच्छता","Experience with Service advisor":"सर्व्हिस अ\u200dॅडव्हायझरसोबतचा अनुभव","Other":"इतर","Quality of work done":"कामाची गुणवत्ता","Time taken for service":"सर्व्हिससाठी लागलेला वेळ","Transparency & Fairness of charges":"शुल्कातील पारदर्शकता व निष्पक्षता","Updates on vehicle status":"गाडीच्या स्थितीची माहिती","Vehicle handover waiting time":"गाडी हँडओव्हर प्रतीक्षा वेळ","Workshop amenities":"वर्कशॉप सुविधा" },
   q3:"तुम्हाला तुमच्या अनुभवाबद्दल आणखी काही सांगायचे आहे का?",
   placeholder:"येथे लिहा", next:"पुढे", back:"मागे", submit:"सबमिट करा", submitting:"पाठवत आहे...",
   thanks:"धन्यवाद", thanksSub:"Mahindra अनुभवासाठी",
@@ -197,6 +193,7 @@ const T = {
  }
 };
 const L = T[lang];
+
 document.getElementById("q1").textContent = L.q1(model, veh);
 document.getElementById("q2").textContent = L.q2(CONFIG.dealerName);
 document.getElementById("lblNot").textContent = L.notLikely;
@@ -211,6 +208,7 @@ document.querySelectorAll(".exp button").forEach(b=>{ b.textContent = L.exp[b.da
 document.getElementById("thanksH").textContent = L.thanks;
 document.getElementById("thanksSub").textContent = L.thanksSub;
 document.getElementById("thanksNote").textContent = L.thanksNote;
+
 /* NPS 0-10 */
 const npsWrap = document.getElementById("nps");
 let npsScore = null, expChoice = null;
@@ -226,6 +224,7 @@ for (let i = 0; i <= 10; i++) {
   };
   npsWrap.appendChild(b);
 }
+
 /* Experience */
 const REASON_KEYS = ["Appointment Experience","Cleanliness of vehicle","Experience with Service advisor","Other","Quality of work done","Time taken for service","Transparency & Fairness of charges","Updates on vehicle status","Vehicle handover waiting time","Workshop amenities"];
 let selectedReasons = [];
@@ -241,6 +240,7 @@ REASON_KEYS.forEach(k=>{
   };
   reasonsWrap.appendChild(rb);
 });
+
 document.querySelectorAll(".exp button").forEach(b=>{
   b.onclick=()=>{
     expChoice=b.dataset.v;
@@ -259,107 +259,46 @@ document.querySelectorAll(".exp button").forEach(b=>{
     document.getElementById("next2").disabled=false;
   };
 });
+
 /* Navigation */
 function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0);}
 document.getElementById("next1").onclick=()=>show("s2");
 document.getElementById("next2").onclick=()=>show("s3");
 document.querySelectorAll(".back").forEach((b,i)=>{b.onclick=()=>show(i===0?"s1":"s2");});
-/* ============================================================
-   WHATSAPP ALERT LOGIC
-   Triggered when: NPS score below CONFIG.alertBelowScore (0-6)
-   OR experience is Fair / Poor / Unacceptable.
-   Sends an automatic WhatsApp message to every number in
-   CONFIG.alertNumbers via the free CallMeBot API.
-   ============================================================ */
-// Decide whether this feedback needs an alert
-function isNegativeFeedback(){
-  const badScore = (npsScore !== null && npsScore < CONFIG.alertBelowScore); // 0-6
-  const badExp   = ["Fair","Poor","Unacceptable"].includes(expChoice);
-  return badScore || badExp;
-}
-// Build the alert text sent to managers (always in English for staff)
-function buildAlertMessage(comment, now){
-  return [
-    "🚨 *NEGATIVE FEEDBACK ALERT* 🚨",
-    "",
-    "*Survey Type:* " + SURVEY_TYPE,
-    "*Dealership:* Unnati Motors",
-    "*Date & Time:* " + now,
-    "*Customer Name:* " + (custName || "-"),
-    "*Vehicle Model:* " + (model || "-"),
-    "*Vehicle Number:* " + (veh || "-"),
-    "*Chassis Number:* " + (chassis || "-"),
-    "*Customer Mobile:* " + (mob || "-"),
-    "",
-    "*Recommend Score:* " + (npsScore !== null ? npsScore + "/10" : "-"),
-    "*Service Experience:* " + (expChoice || "-"),
-    "*What Went Wrong:* " + (selectedReasons.length ? selectedReasons.join(", ") : "-"),
-    "*Customer Comments:* " + (comment || "(no comments)"),
-    "",
-    "⚠️ *ACTION REQUIRED:* Call the customer within 4 hours." +
-    (mob ? "\n📞 Call now: " + mob : "")
-  ].join("\n");
-}
-// Send the alert to ALL configured numbers ONE BY ONE (sequential,
-// with a gap between each — proper manner, avoids API rate limits).
-// Never blocks or fails the customer's submission.
-const wait = ms => new Promise(res => setTimeout(res, ms));
-async function sendWhatsAppAlerts(comment, now){
-  if(!isNegativeFeedback()) return;                 // only negative feedback
-  const text = buildAlertMessage(comment, now);
-  const targets = CONFIG.alertNumbers
-    .filter(n => n.phone && n.apikey && n.apikey !== "PASTE_APIKEY_HERE");
-  for(let i = 0; i < targets.length; i++){
-    const n = targets[i];
-    const url = "https://api.callmebot.com/whatsapp.php" +
-                "?phone=+" + n.phone.replace(/^\+/, "") +
-                "&text=" + encodeURIComponent(text) +
-                "&apikey=" + encodeURIComponent(n.apikey);
-    try{
-      // mode:"no-cors" — response is opaque but the message IS delivered
-      await fetch(url, { method: "GET", mode: "no-cors" });
-    }catch(e){ /* continue with next number even if one fails */ }
-    if(i < targets.length - 1) await wait(2000);    // 2s gap between numbers
-  }
-}
-/* Submit -> email via FormSubmit + WhatsApp alert if negative */
+
+/* Submit -> email via FormSubmit */
 document.getElementById("submitBtn").onclick = async () => {
   const btn = document.getElementById("submitBtn");
   const comment = document.getElementById("comment").value.trim();
-  const flag = isNegativeFeedback();
+  const flag = (npsScore!==null && npsScore<=7) || ["Fair","Poor","Unacceptable"].includes(expChoice);
   const now = new Date().toLocaleString("en-IN");
   btn.disabled = true;
   document.getElementById("sending").textContent = L.submitting;
-  // 1) Email (every feedback) — sent TO feedbackEmail, CC to ccEmails
-  const emailJob = fetch("https://formsubmit.co/ajax/" + CONFIG.feedbackEmail, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json", "Accept":"application/json" },
-    body: JSON.stringify({
-      _subject: (flag ? "⚠️ ATTENTION NEEDED | " : "✅ ") + "Customer Feedback | " + (model || "Vehicle") + " | " + (veh || "-"),
-      _template: "table",
-      _cc: CONFIG.ccEmails,
-      "01. Survey Type": SURVEY_TYPE,
-      "02. Status": "Completed",
-      "03. Date & Time": now,
-      "04. Dealership": CONFIG.dealerName,
-      "05. Customer Name": custName || "-",
-      "06. Product (Model)": model || "-",
-      "07. Vehicle Number": veh || "-",
-      "08. Chassis Number": chassis || "-",
-      "09. Customer Mobile Number": mob || "-",
-      "10. Recommend Score (0-10)": npsScore,
-      "11. Service Experience": expChoice,
-      "12. What Went Wrong": selectedReasons.length ? selectedReasons.join(", ") : "-",
-      "13. Customer Comments": comment || "(no comments)",
-      "14. Survey Language": lang==="hi"?"Hindi":lang==="mr"?"Marathi":"English",
-      "15. ACTION REQUIRED": flag ? "YES - Service Manager must call customer within 4 hours" : "No - customer satisfied",
-      "16. WhatsApp Alert Sent To": flag ? CONFIG.alertNumbers.map(n=>n.name+" ("+n.phone+")").join(", ") : "-"
-    })
-  }).catch(()=>{});
-  // 2) WhatsApp alert to managers (only if negative feedback)
-  const waJob = sendWhatsAppAlerts(comment, now);
-  try{ await Promise.allSettled([emailJob, waJob]); }
-  catch(e){ /* still thank the customer; do not block them */ }
+  const route = DIVISION_EMAILS[divn] || { to: CONFIG.feedbackEmail, cc: "" };
+  try{
+    const payload = {
+        _subject: (flag ? "\u26A0\uFE0F ATTENTION NEEDED | " : "\u2705 ") + "Customer Feedback | " + (divn ? divn.charAt(0).toUpperCase()+divn.slice(1) + " | " : "") + (model || "Vehicle") + " | " + (veh || "-"),
+        _template: "table",
+        "1. Date & Time": now,
+        "2. Dealership": "Unnati Motors",
+        "2a. Division": divn ? divn.charAt(0).toUpperCase()+divn.slice(1) : "-",
+        "3. Vehicle Model": model || "-",
+        "4. Vehicle Number": veh || "-",
+        "4a. Customer Mobile Number": mob || "-",
+        "5. Recommend Score (0-10)": npsScore,
+        "6. Service Experience": expChoice,
+        "6a. What Went Wrong": selectedReasons.length ? selectedReasons.join(", ") : "-",
+        "7. Customer Comments": comment || "(no comments)",
+        "7a. Survey Language": lang==="hi"?"Hindi":lang==="mr"?"Marathi":"English",
+        "8. ACTION REQUIRED": flag ? "YES - Service Manager must call customer within 4 hours" : "No - customer satisfied"
+    };
+    if(route.cc) payload._cc = route.cc;
+    await fetch("https://formsubmit.co/ajax/" + route.to, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(payload)
+    });
+  }catch(e){ /* still thank the customer; do not block them */ }
   show("s4");
 };
 </script>
