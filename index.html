@@ -42,6 +42,11 @@
   @media(max-width:600px){.reasons button{flex:1 1 100%;min-width:0;}}
   textarea{width:100%;min-height:110px;margin-top:20px;padding:14px;border-radius:4px;
     border:1px solid #fff;background:#000;color:#fff;font-size:15px;resize:vertical;}
+  .mobinput{width:100%;padding:14px;margin-top:8px;border-radius:4px;
+    border:1px solid #fff;background:#000;color:#fff;font-size:16px;}
+  .mobinput::placeholder{color:#8a8a8a;}
+  .mob-label{font-size:17px;font-weight:600;margin-top:28px;}
+  .mob-err{color:#ff6b6b;font-size:14px;margin-top:6px;min-height:18px;}
   textarea::placeholder{color:#8a8a8a;}
   .nav{display:flex;justify-content:space-between;margin-top:48px;gap:12px;}
   .nav .spacer{flex:1;}
@@ -98,6 +103,9 @@
   <section class="screen" id="s3">
     <div class="question" id="q3">Would you like to share any thing more about your experience ?</div>
     <textarea id="comment" placeholder="Answer Here"></textarea>
+    <div class="mob-label" id="mobLbl">Your Mobile Number</div>
+    <input class="mobinput" id="custMob" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number">
+    <div class="mob-err" id="mobErr"></div>
     <div class="nav"><button class="btn back">Back</button><button class="btn" id="submitBtn">Submit</button></div>
     <div class="sending" id="sending"></div>
   </section>
@@ -153,6 +161,8 @@ const T = {
   sorry:"Sorry, to hear that. Tell us what went wrong (Select all that apply).",
   reasons:{ "Appointment Experience":"Appointment Experience","Cleanliness of vehicle":"Cleanliness of vehicle","Experience with Service advisor":"Experience with Service advisor","Other":"Other","Quality of work done":"Quality of work done","Time taken for service":"Time taken for service","Transparency & Fairness of charges":"Transparency & Fairness of charges","Updates on vehicle status":"Updates on vehicle status","Vehicle handover waiting time":"Vehicle handover waiting time","Workshop amenities":"Workshop amenities" },
   q3:"Would you like to share any thing more about your experience ?",
+  mobLbl:"Your Mobile Number", mobPh:"10-digit mobile number",
+  mobErr:"Please enter a valid 10-digit mobile number.",
   placeholder:"Answer Here", next:"Next", back:"Back", submit:"Submit", submitting:"Submitting...",
   thanks:"Thank You", thanksSub:"For Experiencing Mahindra",
   thanksNote:"Your feedback has been recorded. Our team will reach out if needed."
@@ -170,6 +180,8 @@ const T = {
   sorry:"यह सुनकर खेद हुआ। कृपया बताएं क्या गलत हुआ (जो भी लागू हों चुनें)।",
   reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाड़ी की सफाई","Experience with Service advisor":"सर्विस एडवाइज़र के साथ अनुभव","Other":"अन्य","Quality of work done":"काम की गुणवत्ता","Time taken for service":"सर्विस में लगा समय","Transparency & Fairness of charges":"शुल्क में पारदर्शिता और निष्पक्षता","Updates on vehicle status":"गाड़ी की स्थिति की जानकारी","Vehicle handover waiting time":"गाड़ी हैंडओवर में प्रतीक्षा समय","Workshop amenities":"वर्कशॉप सुविधाएँ" },
   q3:"क्या आप अपने अनुभव के बारे में कुछ और बताना चाहेंगे?",
+  mobLbl:"आपका मोबाइल नंबर", mobPh:"10 अंकों का मोबाइल नंबर",
+  mobErr:"कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।",
   placeholder:"यहाँ लिखें", next:"आगे", back:"पीछे", submit:"सबमिट करें", submitting:"भेजा जा रहा है...",
   thanks:"धन्यवाद", thanksSub:"Mahindra अनुभव के लिए",
   thanksNote:"आपकी प्रतिक्रिया दर्ज कर ली गई है। आवश्यकता होने पर हमारी टीम आपसे संपर्क करेगी।"
@@ -187,6 +199,8 @@ const T = {
   sorry:"हे ऐकून वाईट वाटले. कृपया काय चुकले ते सांगा (लागू असलेले सर्व निवडा).",
   reasons:{ "Appointment Experience":"अपॉइंटमेंट अनुभव","Cleanliness of vehicle":"गाडीची स्वच्छता","Experience with Service advisor":"सर्व्हिस अ\u200dॅडव्हायझरसोबतचा अनुभव","Other":"इतर","Quality of work done":"कामाची गुणवत्ता","Time taken for service":"सर्व्हिससाठी लागलेला वेळ","Transparency & Fairness of charges":"शुल्कातील पारदर्शकता व निष्पक्षता","Updates on vehicle status":"गाडीच्या स्थितीची माहिती","Vehicle handover waiting time":"गाडी हँडओव्हर प्रतीक्षा वेळ","Workshop amenities":"वर्कशॉप सुविधा" },
   q3:"तुम्हाला तुमच्या अनुभवाबद्दल आणखी काही सांगायचे आहे का?",
+  mobLbl:"तुमचा मोबाइल नंबर", mobPh:"10 अंकी मोबाइल नंबर",
+  mobErr:"कृपया योग्य 10 अंकी मोबाइल नंबर टाका.",
   placeholder:"येथे लिहा", next:"पुढे", back:"मागे", submit:"सबमिट करा", submitting:"पाठवत आहे...",
   thanks:"धन्यवाद", thanksSub:"Mahindra अनुभवासाठी",
   thanksNote:"तुमचा अभिप्राय नोंदवला गेला आहे. गरज पडल्यास आमची टीम तुमच्याशी संपर्क साधेल."
@@ -200,6 +214,9 @@ document.getElementById("lblNot").textContent = L.notLikely;
 document.getElementById("lblExt").textContent = L.extLikely;
 document.getElementById("q3").textContent = L.q3;
 document.getElementById("comment").placeholder = L.placeholder;
+document.getElementById("mobLbl").textContent = L.mobLbl;
+document.getElementById("custMob").placeholder = L.mobPh;
+document.getElementById("custMob").value = mob;
 document.getElementById("next1").textContent = L.next;
 document.getElementById("next2").textContent = L.next;
 document.getElementById("submitBtn").textContent = L.submit;
@@ -270,6 +287,15 @@ document.querySelectorAll(".back").forEach((b,i)=>{b.onclick=()=>show(i===0?"s1"
 document.getElementById("submitBtn").onclick = async () => {
   const btn = document.getElementById("submitBtn");
   const comment = document.getElementById("comment").value.trim();
+  const custMob = document.getElementById("custMob").value.trim();
+  document.getElementById("mobErr").textContent = "";
+  if(!/^[6-9]\d{9}$/.test(custMob)){
+    document.getElementById("mobErr").textContent = L.mobErr;
+    return;
+  }
+  const mobDisplay = (mob && custMob !== mob)
+    ? "Sent to: " + mob + " | Surveyed from: " + custMob
+    : custMob;
   const flag = (npsScore!==null && npsScore<=7) || ["Fair","Poor","Unacceptable"].includes(expChoice);
   const now = new Date().toLocaleString("en-IN");
   btn.disabled = true;
@@ -284,7 +310,7 @@ document.getElementById("submitBtn").onclick = async () => {
         "2a. Division": divn ? divn.charAt(0).toUpperCase()+divn.slice(1) : "-",
         "3. Vehicle Model": model || "-",
         "4. Vehicle Number": veh || "-",
-        "4a. Customer Mobile Number": mob || "-",
+        "4a. Customer Mobile Number": mobDisplay,
         "5. Recommend Score (0-10)": npsScore,
         "6. Service Experience": expChoice,
         "6a. What Went Wrong": selectedReasons.length ? selectedReasons.join(", ") : "-",
